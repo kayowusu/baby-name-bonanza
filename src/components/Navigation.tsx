@@ -7,7 +7,7 @@ const Navigation = () => {
     <nav className="w-full bg-white/80 backdrop-blur-sm shadow-sm py-4 mb-8">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold text-gray-800 hover:text-gray-600 transition-colors">
-          Baby Name Bonanza
+          Baby Name Bot
         </Link>
         
         <NavigationMenu>
