@@ -8,9 +8,15 @@ import { BabyInfoForm, BabyInfo } from "./BabyInfoForm";
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_KEY = "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";
 
+interface GeneratedName {
+  name: string;
+  meaning: string;
+  explanation: string;
+}
+
 export const NameGenerator = () => {
   const [babyInfo, setBabyInfo] = useState<BabyInfo | null>(null);
-  const [names, setNames] = useState<string[]>([]);
+  const [names, setNames] = useState<GeneratedName[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -25,7 +31,14 @@ export const NameGenerator = () => {
       - Cultural Background: ${babyInfo.culturalBackground}
       - Due Date: ${babyInfo.dueDate}
       - Family Naming Traditions: ${babyInfo.familyNameTradition}
-      - Meaning Preferences: ${babyInfo.meaningPreference}`;
+      - Meaning Preferences: ${babyInfo.meaningPreference}
+      
+      For each name, provide:
+      1. The name itself
+      2. Its meaning and origin
+      3. A brief explanation of why it suits this baby's profile
+      
+      Format each response as: Name: [name] | Meaning: [meaning] | Explanation: [explanation]`;
 
       const response = await axios.post(
         API_URL,
@@ -34,7 +47,7 @@ export const NameGenerator = () => {
           messages: [
             {
               role: "system",
-              content: "You are a helpful assistant that generates baby names. Return only a numbered list of names, nothing else.",
+              content: "You are a helpful assistant that generates thoughtful baby names. Return the names in the specified format, one per line.",
             },
             {
               role: "user",
@@ -51,10 +64,14 @@ export const NameGenerator = () => {
       );
 
       const content = response.data.choices[0].message.content;
-      const nameList = content
-        .split("\n")
-        .map((line: string) => line.replace(/^\d+\.\s*/, "").trim())
-        .filter((name: string) => name.length > 0);
+      const nameList = content.split("\n").filter((line: string) => line.trim().length > 0).map((line: string) => {
+        const parts = line.split("|").map(part => part.trim());
+        return {
+          name: parts[0].replace("Name:", "").trim(),
+          meaning: parts[1].replace("Meaning:", "").trim(),
+          explanation: parts[2].replace("Explanation:", "").trim(),
+        };
+      });
 
       setNames(nameList);
     } catch (error) {
@@ -93,8 +110,14 @@ export const NameGenerator = () => {
 
       {names.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {names.map((name, index) => (
-            <NameCard key={index} name={name} index={index} />
+          {names.map((nameData, index) => (
+            <NameCard 
+              key={index} 
+              name={nameData.name} 
+              meaning={nameData.meaning}
+              explanation={nameData.explanation}
+              index={index} 
+            />
           ))}
         </div>
       )}
