@@ -1,22 +1,32 @@
 import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { NameCard } from "./NameCard";
+import { BabyInfoForm, BabyInfo } from "./BabyInfoForm";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_KEY = "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";
 
 export const NameGenerator = () => {
-  const [preferences, setPreferences] = useState("");
+  const [babyInfo, setBabyInfo] = useState<BabyInfo | null>(null);
   const [names, setNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const generateNames = async () => {
+    if (!babyInfo) return;
+
     setIsLoading(true);
     try {
+      const prompt = `Generate 5 unique baby names based on these preferences:
+      - Gender: ${babyInfo.gender}
+      - Ethnicity: ${babyInfo.ethnicity}
+      - Cultural Background: ${babyInfo.culturalBackground}
+      - Due Date: ${babyInfo.dueDate}
+      - Family Naming Traditions: ${babyInfo.familyNameTradition}
+      - Meaning Preferences: ${babyInfo.meaningPreference}`;
+
       const response = await axios.post(
         API_URL,
         {
@@ -28,7 +38,7 @@ export const NameGenerator = () => {
             },
             {
               role: "user",
-              content: `Generate 5 unique baby names based on these preferences: ${preferences}`,
+              content: prompt,
             },
           ],
         },
@@ -58,23 +68,21 @@ export const NameGenerator = () => {
     }
   };
 
+  const handleInfoSubmit = (info: BabyInfo) => {
+    setBabyInfo(info);
+  };
+
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
-        <Input
-          placeholder="Enter preferences (e.g., gender, origin, meaning)"
-          value={preferences}
-          onChange={(e) => setPreferences(e.target.value)}
-          className="w-full"
-        />
-        <Button
-          onClick={generateNames}
-          disabled={isLoading || !preferences}
-          className="w-full bg-gradient-to-r from-baby-pink via-baby-purple to-baby-blue hover:opacity-90 transition-opacity"
-        >
-          {isLoading ? "Generating..." : "Generate Names"}
-        </Button>
-      </div>
+      <BabyInfoForm onInfoSubmit={handleInfoSubmit} />
+      
+      <Button
+        onClick={generateNames}
+        disabled={isLoading || !babyInfo}
+        className="w-full bg-gradient-to-r from-baby-pink via-baby-purple to-baby-blue hover:opacity-90 transition-opacity"
+      >
+        {isLoading ? "Generating..." : "Generate Names"}
+      </Button>
 
       {names.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
