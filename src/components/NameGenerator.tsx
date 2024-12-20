@@ -21,7 +21,14 @@ export const NameGenerator = () => {
   const { toast } = useToast();
 
   const generateNames = async () => {
-    if (!babyInfo) return;
+    if (!babyInfo) {
+      toast({
+        title: "Error",
+        description: "Please fill in the baby information form first.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -58,20 +65,34 @@ export const NameGenerator = () => {
         {
           headers: {
             Authorization: `Bearer ${API_KEY}`,
+            "HTTP-Referer": "https://localhost:5173",
+            "X-Title": "Baby Name Generator",
             "Content-Type": "application/json",
           },
         }
       );
 
+      console.log("API Response:", response.data); // Debug log
+
+      if (!response.data.choices || !response.data.choices[0]?.message?.content) {
+        throw new Error("Invalid response format from API");
+      }
+
       const content = response.data.choices[0].message.content;
-      const nameList = content.split("\n").filter((line: string) => line.trim().length > 0).map((line: string) => {
-        const parts = line.split("|").map(part => part.trim());
-        return {
-          name: parts[0].replace("Name:", "").trim(),
-          meaning: parts[1].replace("Meaning:", "").trim(),
-          explanation: parts[2].replace("Explanation:", "").trim(),
-        };
-      });
+      const nameList = content.split("\n")
+        .filter((line: string) => line.trim().length > 0 && line.includes("|"))
+        .map((line: string) => {
+          const parts = line.split("|").map(part => part.trim());
+          return {
+            name: parts[0].replace("Name:", "").trim(),
+            meaning: parts[1].replace("Meaning:", "").trim(),
+            explanation: parts[2].replace("Explanation:", "").trim(),
+          };
+        });
+
+      if (nameList.length === 0) {
+        throw new Error("No valid names were generated");
+      }
 
       setNames(nameList);
       toast({
@@ -82,7 +103,7 @@ export const NameGenerator = () => {
       console.error("Error generating names:", error);
       toast({
         title: "Error",
-        description: "Failed to generate names. Please try again.",
+        description: error.response?.data?.error || "Failed to generate names. Please try again.",
         variant: "destructive",
       });
     } finally {
