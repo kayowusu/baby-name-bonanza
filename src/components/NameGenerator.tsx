@@ -79,9 +79,16 @@ export const NameGenerator = () => {
       <Button
         onClick={generateNames}
         disabled={isLoading || !babyInfo}
-        className="w-full bg-gradient-to-r from-baby-pink via-baby-purple to-baby-blue hover:opacity-90 transition-opacity"
+        size="lg"
+        className="w-full text-lg py-6 font-semibold bg-gradient-to-r from-baby-pink via-baby-purple to-baby-blue hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl"
       >
-        {isLoading ? "Generating..." : "Generate Names"}
+        {isLoading ? (
+          <span className="flex items-center gap-2">
+            <span className="animate-spin">⏳</span> Generating Names...
+          </span>
+        ) : (
+          "Generate Names"
+        )}
       </Button>
 
       {names.length > 0 && (
