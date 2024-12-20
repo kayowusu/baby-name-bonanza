@@ -74,7 +74,12 @@ export const NameGenerator = () => {
       });
 
       setNames(nameList);
+      toast({
+        title: "Success!",
+        description: "Baby names generated successfully.",
+      });
     } catch (error) {
+      console.error("Error generating names:", error);
       toast({
         title: "Error",
         description: "Failed to generate names. Please try again.",
@@ -97,7 +102,7 @@ export const NameGenerator = () => {
         onClick={generateNames}
         disabled={isLoading || !babyInfo}
         size="lg"
-        className="w-full text-lg py-6 font-semibold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 rounded-xl"
+        className="w-full text-lg py-6 font-semibold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 rounded-xl animate-fadeIn"
       >
         {isLoading ? (
           <span className="flex items-center gap-2">
