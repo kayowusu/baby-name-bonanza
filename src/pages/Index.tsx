@@ -15,12 +15,12 @@ const Index = () => {
             
             <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto animate-fadeIn" style={{ animationDelay: "400ms" }}>
               <img
-                src="/lovable-uploads/bb6c4b1c-c93d-4e48-8f29-998df797504f.png"
-                alt="Sleeping baby"
+                src="/lovable-uploads/894e0cad-ef85-45a1-8029-b17a0ddd2c0b.png"
+                alt="Sleeping baby in white"
                 className="rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
               />
               <img
-                src="/lovable-uploads/e736cec3-c4df-43b9-9d80-11563df2804a.png"
+                src="/lovable-uploads/faeb0e6e-7500-4664-a6f3-099bb6c567b8.png"
                 alt="Baby holding hand"
                 className="rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
               />
