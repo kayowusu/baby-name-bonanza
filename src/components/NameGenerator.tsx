@@ -97,7 +97,7 @@ export const NameGenerator = () => {
         onClick={generateNames}
         disabled={isLoading || !babyInfo}
         size="lg"
-        className="w-full text-lg py-6 font-semibold bg-black text-white hover:bg-gray-800 transition-colors shadow-lg hover:shadow-xl"
+        className="w-full text-lg py-6 font-semibold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 rounded-xl"
       >
         {isLoading ? (
           <span className="flex items-center gap-2">
