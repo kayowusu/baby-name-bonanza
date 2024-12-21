@@ -65,18 +65,19 @@ serve(async (req) => {
           ],
         }),
       }).then(res => res.json())
+        .then(data => ({ model, data })) // Include the model name in the response
     )
 
     // Use Promise.race to get the first response
     const firstResponse = await Promise.race(modelPromises)
     console.log("First response received:", firstResponse)
 
-    if (!firstResponse.choices || !firstResponse.choices[0]?.message?.content) {
+    if (!firstResponse.data.choices || !firstResponse.data.choices[0]?.message?.content) {
       console.error("Invalid API response structure:", firstResponse)
       throw new Error("Invalid response format from API")
     }
 
-    const content = firstResponse.choices[0].message.content
+    const content = firstResponse.data.choices[0].message.content
     console.log("Raw content from first response:", content)
 
     const nameList = content.split("\n")
@@ -93,7 +94,10 @@ serve(async (req) => {
     console.log("Processed name list:", nameList)
 
     return new Response(
-      JSON.stringify({ names: nameList }),
+      JSON.stringify({ 
+        names: nameList,
+        model: firstResponse.model // Include the responding model in the response
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (error) {
