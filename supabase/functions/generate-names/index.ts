@@ -26,7 +26,8 @@ serve(async (req) => {
     }
 
     // Filter and ensure uniqueness
-    const uniqueNames = Array.from(new Set(names))
+    const uniqueNames = Array.from(new Set(names.map(n => n.name)))
+      .map(name => names.find(n => n.name === name))
       .filter(name => {
         if (!babyInfo.startingLetter) return true;
         return name.name.toLowerCase().startsWith(babyInfo.startingLetter.toLowerCase());

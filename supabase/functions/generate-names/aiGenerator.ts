@@ -3,6 +3,10 @@ const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
 export async function generateNamesWithAI(preferences: any) {
   const { gender, origin, style, meaningPreference, theme, culturalSignificance, startingLetter, dueDate } = preferences;
   
+  if (!openRouterApiKey) {
+    throw new Error("OpenRouter API key is not configured");
+  }
+  
   const letterConstraint = startingLetter ? `MUST all start with the letter "${startingLetter}"` : "can start with any letter";
   
   const prompt = `Generate 6 unique baby names that:
@@ -63,19 +67,31 @@ export async function generateNamesWithAI(preferences: any) {
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("OpenRouter API error:", errorText);
+      throw new Error(`OpenRouter API returned status ${response.status}`);
+    }
+
     const data = await response.json();
     console.log("OpenRouter response:", data);
 
-    if (data.choices && data.choices[0]?.message?.content) {
-      try {
-        const parsedContent = JSON.parse(data.choices[0].message.content);
-        return parsedContent.names;
-      } catch (e) {
-        console.error("Error parsing AI response:", e);
-        throw new Error("Failed to parse AI response");
-      }
+    if (!data.choices || !data.choices[0]?.message?.content) {
+      console.error("Invalid response structure:", data);
+      throw new Error("Invalid response structure from OpenRouter");
     }
-    throw new Error("Invalid response from AI service");
+
+    try {
+      const parsedContent = JSON.parse(data.choices[0].message.content);
+      if (!parsedContent.names || !Array.isArray(parsedContent.names)) {
+        console.error("Invalid parsed content structure:", parsedContent);
+        throw new Error("Invalid response format from AI");
+      }
+      return parsedContent.names;
+    } catch (e) {
+      console.error("Error parsing AI response:", e);
+      throw new Error("Failed to parse AI response");
+    }
   } catch (error) {
     console.error("Error calling OpenRouter:", error);
     throw error;
