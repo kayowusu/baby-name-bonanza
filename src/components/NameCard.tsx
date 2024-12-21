@@ -1,15 +1,22 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
+interface FamousPerson {
+  name: string;
+  profession: string;
+  birthYear: number;
+}
+
 interface NameCardProps {
   name: string;
   meaning: string;
   explanation: string;
   index: number;
   gender: string;
+  famousPeople?: FamousPerson[];
 }
 
-export const NameCard = ({ name, meaning, explanation, index, gender }: NameCardProps) => {
+export const NameCard = ({ name, meaning, explanation, index, gender, famousPeople }: NameCardProps) => {
   // Define color schemes based on gender
   const getColorScheme = () => {
     switch (gender) {
@@ -41,6 +48,18 @@ export const NameCard = ({ name, meaning, explanation, index, gender }: NameCard
               <p className="text-sm opacity-80">
                 {explanation}
               </p>
+              {famousPeople && famousPeople.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200/20">
+                  <p className="text-sm font-medium">Famous people born on this date:</p>
+                  <ul className="mt-2 space-y-1">
+                    {famousPeople.map((person, i) => (
+                      <li key={i} className="text-sm opacity-80">
+                        {person.name} ({person.birthYear}) - {person.profession}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
