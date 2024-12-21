@@ -1,19 +1,107 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 
-const OPENROUTER_API_KEY = "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"
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const models = [
-  'openai/gpt-4o-mini',
-  'google/gemini-2.0-flash-thinking-exp:free',
-  'perplexity/llama-3.1-sonar-small-128k-online'
-]
+// Name generation plugin
+const namePlugin = {
+  atmosphericNames: [
+    { name: "Aura", meaning: "A gentle breeze or atmosphere", origin: "Latin" },
+    { name: "Cielo", meaning: "Sky or heaven", origin: "Italian" },
+    { name: "Storm", meaning: "Tempest or weather phenomenon", origin: "English" },
+    { name: "Zephyr", meaning: "West wind", origin: "Greek" },
+    { name: "Luna", meaning: "Moon", origin: "Latin" },
+  ],
+  natureNames: [
+    { name: "River", meaning: "Flowing water body", origin: "English" },
+    { name: "Willow", meaning: "Graceful tree", origin: "English" },
+    { name: "Sage", meaning: "Wise herb", origin: "Latin" },
+    { name: "Rowan", meaning: "Mountain ash tree", origin: "Scottish" },
+    { name: "Flora", meaning: "Flower, blooming", origin: "Latin" },
+  ],
+  traditionalNames: {
+    male: [
+      { name: "William", meaning: "Resolute protector", origin: "Germanic" },
+      { name: "James", meaning: "Supplanter", origin: "Hebrew" },
+      { name: "Alexander", meaning: "Defender of the people", origin: "Greek" },
+      { name: "Benjamin", meaning: "Son of the right hand", origin: "Hebrew" },
+      { name: "Charles", meaning: "Free man", origin: "Germanic" },
+    ],
+    female: [
+      { name: "Elizabeth", meaning: "God is my oath", origin: "Hebrew" },
+      { name: "Catherine", meaning: "Pure", origin: "Greek" },
+      { name: "Victoria", meaning: "Victory", origin: "Latin" },
+      { name: "Margaret", meaning: "Pearl", origin: "Greek" },
+      { name: "Isabella", meaning: "Pledged to God", origin: "Hebrew" },
+    ],
+  },
+  modernNames: {
+    male: [
+      { name: "Kai", meaning: "Sea", origin: "Hawaiian" },
+      { name: "Axel", meaning: "Father of peace", origin: "Scandinavian" },
+      { name: "Zion", meaning: "Highest point", origin: "Hebrew" },
+      { name: "Atlas", meaning: "Enduring", origin: "Greek" },
+      { name: "Nova", meaning: "New", origin: "Latin" },
+    ],
+    female: [
+      { name: "Luna", meaning: "Moon", origin: "Latin" },
+      { name: "Aria", meaning: "Air, melody", origin: "Italian" },
+      { name: "Nova", meaning: "New", origin: "Latin" },
+      { name: "Sage", meaning: "Wise", origin: "Latin" },
+      { name: "Winter", meaning: "Cold season", origin: "English" },
+    ],
+  }
+}
+
+function generateNames(preferences: any) {
+  const names = []
+  const { gender, ethnicity, culturalBackground, meaningPreference } = preferences
+
+  // Helper function to get random items from an array
+  const getRandomItems = (arr: any[], count: number) => {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, count)
+  }
+
+  // Select name pools based on preferences
+  let namePools = []
+  
+  if (meaningPreference?.toLowerCase().includes('nature')) {
+    namePools.push(...namePlugin.natureNames)
+  }
+  if (meaningPreference?.toLowerCase().includes('modern')) {
+    namePools.push(...(gender === 'female' ? namePlugin.modernNames.female : namePlugin.modernNames.male))
+  }
+  if (meaningPreference?.toLowerCase().includes('traditional')) {
+    namePools.push(...(gender === 'female' ? namePlugin.traditionalNames.female : namePlugin.traditionalNames.male))
+  }
+  if (meaningPreference?.toLowerCase().includes('atmospheric')) {
+    namePools.push(...namePlugin.atmosphericNames)
+  }
+
+  // If no specific preference or empty pools, use all available names
+  if (namePools.length === 0) {
+    namePools = [
+      ...namePlugin.atmosphericNames,
+      ...namePlugin.natureNames,
+      ...(gender === 'female' ? namePlugin.traditionalNames.female : namePlugin.traditionalNames.male),
+      ...(gender === 'female' ? namePlugin.modernNames.female : namePlugin.modernNames.male),
+    ]
+  }
+
+  // Generate 5 unique names
+  const selectedNames = getRandomItems(namePools, 5)
+
+  // Format the names with explanations
+  return selectedNames.map(nameData => ({
+    name: nameData.name,
+    meaning: nameData.meaning,
+    explanation: `${nameData.name} is a ${nameData.origin} name that perfectly matches your preferences. Its meaning, "${nameData.meaning}", aligns with ${meaningPreference || 'your search for the perfect name'}.`
+  }))
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -24,79 +112,13 @@ serve(async (req) => {
     const { babyInfo } = await req.json()
     console.log("Received baby info:", babyInfo)
 
-    const prompt = `Generate 5 unique baby names based on these preferences:
-    - Gender: ${babyInfo.gender}
-    - Ethnicity: ${babyInfo.ethnicity}
-    - Cultural Background: ${babyInfo.culturalBackground}
-    - Due Date: ${babyInfo.dueDate}
-    - Family Naming Traditions: ${babyInfo.familyNameTradition}
-    - Meaning Preferences: ${babyInfo.meaningPreference}
-    
-    For each name, provide:
-    1. The name itself
-    2. Its meaning and origin
-    3. A brief explanation of why it suits this baby's profile
-    
-    Format each response as: Name: [name] | Meaning: [meaning] | Explanation: [explanation]`
-
-    console.log("Sending prompt to multiple models:", prompt)
-
-    // Create an array of promises for each model
-    const modelPromises = models.map(model => 
-      fetch(OPENROUTER_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'HTTP-Referer': 'https://localhost:5173',
-          'X-Title': 'Baby Name Generator',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [
-            {
-              role: "system",
-              content: "You are a helpful assistant that generates thoughtful baby names. Return the names in the specified format, one per line.",
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        }),
-      }).then(res => res.json())
-        .then(data => ({ model, data })) // Include the model name in the response
-    )
-
-    // Use Promise.race to get the first response
-    const firstResponse = await Promise.race(modelPromises)
-    console.log("First response received:", firstResponse)
-
-    if (!firstResponse.data.choices || !firstResponse.data.choices[0]?.message?.content) {
-      console.error("Invalid API response structure:", firstResponse)
-      throw new Error("Invalid response format from API")
-    }
-
-    const content = firstResponse.data.choices[0].message.content
-    console.log("Raw content from first response:", content)
-
-    const nameList = content.split("\n")
-      .filter((line: string) => line.trim().length > 0 && line.includes("|"))
-      .map((line: string) => {
-        const parts = line.split("|").map(part => part.trim())
-        return {
-          name: parts[0].replace("Name:", "").trim(),
-          meaning: parts[1].replace("Meaning:", "").trim(),
-          explanation: parts[2].replace("Explanation:", "").trim(),
-        }
-      })
-
-    console.log("Processed name list:", nameList)
+    const names = generateNames(babyInfo)
+    console.log("Generated names:", names)
 
     return new Response(
       JSON.stringify({ 
-        names: nameList,
-        model: firstResponse.model // Include the responding model in the response
+        names,
+        model: "Name Generation Plugin v1.0"
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
