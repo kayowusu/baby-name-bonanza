@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 
 interface BabyInfoFormProps {
   onInfoSubmit: (info: BabyInfo) => void;
@@ -28,18 +26,14 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
     meaningPreference: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submitting form with info:", babyInfo);
-    onInfoSubmit(babyInfo);
-  };
-
   const handleChange = (field: keyof BabyInfo, value: string) => {
-    setBabyInfo((prev) => ({ ...prev, [field]: value }));
+    const updatedInfo = { ...babyInfo, [field]: value };
+    setBabyInfo(updatedInfo);
+    onInfoSubmit(updatedInfo); // Call onInfoSubmit whenever a field changes
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       <div className="space-y-4">
         <div>
           <Label>Gender</Label>
@@ -124,8 +118,6 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
           />
         </div>
       </div>
-
-      <Button type="submit" className="w-full">Submit</Button>
-    </form>
+    </div>
   );
 };

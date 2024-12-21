@@ -22,7 +22,7 @@ export const NameGenerator = () => {
     if (!babyInfo) {
       toast({
         title: "Error",
-        description: "Please fill in the baby information form first.",
+        description: "Please fill in the baby information first.",
         variant: "destructive",
       });
       return;
@@ -65,7 +65,6 @@ export const NameGenerator = () => {
   const handleInfoSubmit = (info: BabyInfo) => {
     console.log("Form submitted with info:", info);
     setBabyInfo(info);
-    generateNames(); // Automatically generate names when form is submitted
   };
 
   return (
@@ -102,7 +101,8 @@ export const NameGenerator = () => {
               name={nameData.name} 
               meaning={nameData.meaning}
               explanation={nameData.explanation}
-              index={index} 
+              index={index}
+              gender={babyInfo?.gender || 'neutral'}
             />
           ))}
         </div>
