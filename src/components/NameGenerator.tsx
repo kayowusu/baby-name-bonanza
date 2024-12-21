@@ -40,12 +40,12 @@ export const NameGenerator = () => {
 
       if (error) throw error;
 
-      if (!data.names || data.names.length === 0) {
+      if (!data?.names || !Array.isArray(data.names) || data.names.length === 0) {
         throw new Error("No valid names were generated");
       }
 
       setNames(data.names);
-      setRespondingModel(data.model); // Store the responding model
+      setRespondingModel(data.model);
       toast({
         title: "Success!",
         description: "Baby names generated successfully.",
@@ -65,6 +65,7 @@ export const NameGenerator = () => {
   const handleInfoSubmit = (info: BabyInfo) => {
     console.log("Form submitted with info:", info);
     setBabyInfo(info);
+    generateNames(); // Automatically generate names when form is submitted
   };
 
   return (

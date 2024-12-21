@@ -57,6 +57,7 @@ const namePlugin = {
 }
 
 function generateNames(preferences: any) {
+  console.log("Generating names with preferences:", preferences);
   const names = []
   const { gender, ethnicity, culturalBackground, meaningPreference } = preferences
 
@@ -92,8 +93,11 @@ function generateNames(preferences: any) {
     ]
   }
 
+  console.log("Selected name pools:", namePools.length, "names");
+
   // Generate 5 unique names
   const selectedNames = getRandomItems(namePools, 5)
+  console.log("Selected names:", selectedNames);
 
   // Format the names with explanations
   return selectedNames.map(nameData => ({
@@ -104,6 +108,7 @@ function generateNames(preferences: any) {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
