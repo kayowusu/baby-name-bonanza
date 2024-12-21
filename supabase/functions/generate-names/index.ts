@@ -14,7 +14,7 @@ serve(async (req) => {
     const { babyInfo } = await req.json();
     console.log("Received baby info:", babyInfo);
 
-    // Generate names using both the plugin and AI
+    // Generate 5 names using the plugin (increased from 4)
     const pluginNames = generateNamesWithPlugin(babyInfo);
     console.log("Generated plugin names:", pluginNames);
 
@@ -27,6 +27,16 @@ serve(async (req) => {
     if (aiName) {
       allNames.push(aiName);
     }
+
+    // Ensure we have exactly 6 names
+    while (allNames.length < 6 && pluginNames.length > 0) {
+      // If we need more names, cycle through plugin names again
+      const additionalName = pluginNames[allNames.length % pluginNames.length];
+      allNames.push(additionalName);
+    }
+
+    // Limit to exactly 6 names
+    allNames = allNames.slice(0, 6);
 
     return new Response(
       JSON.stringify({ 

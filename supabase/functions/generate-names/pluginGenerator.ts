@@ -35,7 +35,8 @@ export function generateNamesWithPlugin(preferences: any) {
     );
   }
 
-  const selectedNames = getRandomItems(namePools, Math.min(4, namePools.length));
+  // Increased from 4 to 5 names from the plugin
+  const selectedNames = getRandomItems(namePools, Math.min(5, namePools.length));
   console.log("Selected names from plugin:", selectedNames);
 
   return selectedNames.map(nameData => ({
