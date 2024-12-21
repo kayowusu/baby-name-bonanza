@@ -4,6 +4,7 @@ import { corsHeaders } from './utils.ts';
 import { generateNamesWithAI } from './aiGenerator.ts';
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -42,7 +43,12 @@ serve(async (req) => {
         names: uniqueNames,
         model: "Mistral-7B"
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        } 
+      },
     );
   } catch (error) {
     console.error("Error in generate-names function:", error);

@@ -28,6 +28,8 @@ export async function generateNamesWithAI(preferences: any) {
   The name MUST be a real, culturally appropriate name (not made up). The explanation should be detailed but concise.`;
 
   try {
+    console.log("Sending request to OpenRouter with prompt:", prompt);
+    
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
