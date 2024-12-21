@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+
 // Name generation plugin
 const namePlugin = {
   atmosphericNames: [
@@ -56,6 +58,63 @@ const namePlugin = {
   }
 }
 
+async function generateNamesWithAI(preferences: any) {
+  const { gender, ethnicity, culturalBackground, startingLetter, meaningPreference } = preferences;
+  
+  const prompt = `Generate a unique baby name that:
+  - Is for a ${gender}
+  - Starts with the letter "${startingLetter || 'any letter'}"
+  - Reflects ${ethnicity} and ${culturalBackground} cultural background
+  - Has meaning related to ${meaningPreference || 'any positive meaning'}
+  
+  Return the response in this exact JSON format:
+  {
+    "name": "Name",
+    "meaning": "Brief meaning",
+    "explanation": "Detailed cultural and historical context"
+  }`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful assistant that specializes in generating meaningful baby names based on cultural preferences and meanings.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    console.log("OpenAI response:", data);
+
+    if (data.choices && data.choices[0]?.message?.content) {
+      try {
+        const aiGeneratedName = JSON.parse(data.choices[0].message.content);
+        return aiGeneratedName;
+      } catch (e) {
+        console.error("Error parsing AI response:", e);
+        return null;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error calling OpenAI:", error);
+    return null;
+  }
+}
+
 function generateNames(preferences: any) {
   console.log("Generating names with preferences:", preferences);
   const names = []
@@ -94,9 +153,9 @@ function generateNames(preferences: any) {
     );
   }
 
-  // Generate up to 5 unique names (or fewer if not enough names match the criteria)
-  const selectedNames = getRandomItems(namePools, Math.min(5, namePools.length))
-  console.log("Selected names:", selectedNames);
+  // Generate up to 4 unique names from the plugin (leaving space for 1 AI-generated name)
+  const selectedNames = getRandomItems(namePools, Math.min(4, namePools.length))
+  console.log("Selected names from plugin:", selectedNames);
 
   return selectedNames.map(nameData => ({
     name: nameData.name,
@@ -121,13 +180,26 @@ serve(async (req) => {
     const { babyInfo } = await req.json()
     console.log("Received baby info:", babyInfo)
 
-    const names = generateNames(babyInfo)
-    console.log("Generated names:", names)
+    // Generate names using both the plugin and AI
+    const pluginNames = generateNames(babyInfo)
+    console.log("Generated plugin names:", pluginNames)
+
+    let allNames = [...pluginNames];
+
+    // Add AI-generated name if OpenAI API key is available
+    if (openAIApiKey) {
+      const aiName = await generateNamesWithAI(babyInfo);
+      console.log("AI-generated name:", aiName);
+      
+      if (aiName) {
+        allNames.push(aiName);
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
-        names,
-        model: "Name Generation Plugin v1.0"
+        names: allNames,
+        model: openAIApiKey ? "Name Generation Plugin + GPT-4" : "Name Generation Plugin v1.0"
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
