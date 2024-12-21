@@ -1,12 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { NameCard } from "./NameCard";
 import { BabyInfoForm, BabyInfo } from "./BabyInfoForm";
-
-const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = "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";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GeneratedName {
   name: string;
@@ -32,69 +29,17 @@ export const NameGenerator = () => {
 
     setIsLoading(true);
     try {
-      const prompt = `Generate 5 unique baby names based on these preferences:
-      - Gender: ${babyInfo.gender}
-      - Ethnicity: ${babyInfo.ethnicity}
-      - Cultural Background: ${babyInfo.culturalBackground}
-      - Due Date: ${babyInfo.dueDate}
-      - Family Naming Traditions: ${babyInfo.familyNameTradition}
-      - Meaning Preferences: ${babyInfo.meaningPreference}
-      
-      For each name, provide:
-      1. The name itself
-      2. Its meaning and origin
-      3. A brief explanation of why it suits this baby's profile
-      
-      Format each response as: Name: [name] | Meaning: [meaning] | Explanation: [explanation]`;
+      const { data, error } = await supabase.functions.invoke('generate-names', {
+        body: { babyInfo },
+      });
 
-      const response = await axios.post(
-        API_URL,
-        {
-          model: "anthropic/claude-2",
-          messages: [
-            {
-              role: "system",
-              content: "You are a helpful assistant that generates thoughtful baby names. Return the names in the specified format, one per line.",
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "HTTP-Referer": "https://localhost:5173",
-            "X-Title": "Baby Name Generator",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      if (error) throw error;
 
-      console.log("API Response:", response.data); // Debug log
-
-      if (!response.data.choices || !response.data.choices[0]?.message?.content) {
-        throw new Error("Invalid response format from API");
-      }
-
-      const content = response.data.choices[0].message.content;
-      const nameList = content.split("\n")
-        .filter((line: string) => line.trim().length > 0 && line.includes("|"))
-        .map((line: string) => {
-          const parts = line.split("|").map(part => part.trim());
-          return {
-            name: parts[0].replace("Name:", "").trim(),
-            meaning: parts[1].replace("Meaning:", "").trim(),
-            explanation: parts[2].replace("Explanation:", "").trim(),
-          };
-        });
-
-      if (nameList.length === 0) {
+      if (!data.names || data.names.length === 0) {
         throw new Error("No valid names were generated");
       }
 
-      setNames(nameList);
+      setNames(data.names);
       toast({
         title: "Success!",
         description: "Baby names generated successfully.",
@@ -103,7 +48,7 @@ export const NameGenerator = () => {
       console.error("Error generating names:", error);
       toast({
         title: "Error",
-        description: error.response?.data?.error || "Failed to generate names. Please try again.",
+        description: error.message || "Failed to generate names. Please try again.",
         variant: "destructive",
       });
     } finally {
