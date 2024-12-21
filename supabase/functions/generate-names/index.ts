@@ -6,16 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Famous people database organized by month and day
-const famousPeople = {
-  // Format: "MM-DD": [{ name: string, profession: string, birthYear: number }]
-  "01-01": [
-    { name: "Frank", profession: "Actor", birthYear: 1938 },
-    { name: "Elizabeth", profession: "Author", birthYear: 1952 }
-  ],
-  // Add more dates as needed
-};
-
 // Name generation plugin
 const namePlugin = {
   atmosphericNames: [
@@ -66,15 +56,10 @@ const namePlugin = {
   }
 }
 
-function getFamousPeopleForDate(date: string): any[] {
-  const formattedDate = date.split('-').slice(1).join('-'); // Convert YYYY-MM-DD to MM-DD
-  return famousPeople[formattedDate] || [];
-}
-
 function generateNames(preferences: any) {
   console.log("Generating names with preferences:", preferences);
   const names = []
-  const { gender, ethnicity, culturalBackground, dueDate, meaningPreference } = preferences
+  const { gender, ethnicity, culturalBackground, startingLetter, meaningPreference } = preferences
 
   // Select name pools based on preferences
   let namePools = []
@@ -102,21 +87,21 @@ function generateNames(preferences: any) {
     ]
   }
 
-  // Get famous people born on the due date
-  const famousPeopleOnDate = getFamousPeopleForDate(dueDate);
+  // Filter names by starting letter if specified
+  if (startingLetter) {
+    namePools = namePools.filter(nameData => 
+      nameData.name.toLowerCase().startsWith(startingLetter.toLowerCase())
+    );
+  }
 
-  // Generate 5 unique names
-  const selectedNames = getRandomItems(namePools, 5)
+  // Generate up to 5 unique names (or fewer if not enough names match the criteria)
+  const selectedNames = getRandomItems(namePools, Math.min(5, namePools.length))
   console.log("Selected names:", selectedNames);
 
   return selectedNames.map(nameData => ({
     name: nameData.name,
     meaning: nameData.meaning,
-    explanation: `${nameData.name} is a ${nameData.origin} name that perfectly matches your preferences. Its meaning, "${nameData.meaning}", aligns with ${meaningPreference || 'your search for the perfect name'}.`,
-    famousPeople: famousPeopleOnDate.filter(person => 
-      person.name.toLowerCase().includes(nameData.name.toLowerCase()) ||
-      nameData.name.toLowerCase().includes(person.name.toLowerCase())
-    )
+    explanation: `${nameData.name} is a ${nameData.origin} name that perfectly matches your preferences. Its meaning, "${nameData.meaning}", aligns with ${meaningPreference || 'your search for the perfect name'}.`
   }))
 }
 

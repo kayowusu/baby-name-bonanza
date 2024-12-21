@@ -12,7 +12,7 @@ export interface BabyInfo {
   gender: string;
   ethnicity: string;
   culturalBackground: string;
-  dueDate: string;
+  startingLetter: string;
   familyNameTradition: string;
   meaningPreference: string;
 }
@@ -22,7 +22,7 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
     gender: "",
     ethnicity: "",
     culturalBackground: "",
-    dueDate: "",
+    startingLetter: "",
     familyNameTradition: "",
     meaningPreference: "",
   });
@@ -30,8 +30,10 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
   const handleChange = (field: keyof BabyInfo, value: string) => {
     const updatedInfo = { ...babyInfo, [field]: value };
     setBabyInfo(updatedInfo);
-    onInfoSubmit(updatedInfo); // Call onInfoSubmit whenever a field changes
+    onInfoSubmit(updatedInfo);
   };
+
+  const alphabet = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
   return (
     <div className="space-y-6">
@@ -90,13 +92,22 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dueDate">Due Date</Label>
-          <Input
-            id="dueDate"
-            type="date"
-            value={babyInfo.dueDate}
-            onChange={(e) => handleChange("dueDate", e.target.value)}
-          />
+          <Label htmlFor="startingLetter">Starting Letter</Label>
+          <Select
+            value={babyInfo.startingLetter}
+            onValueChange={(value) => handleChange("startingLetter", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select starting letter" />
+            </SelectTrigger>
+            <SelectContent>
+              {alphabet.map((letter) => (
+                <SelectItem key={letter} value={letter.toLowerCase()}>
+                  {letter}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
