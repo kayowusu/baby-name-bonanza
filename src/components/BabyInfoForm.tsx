@@ -10,21 +10,25 @@ interface BabyInfoFormProps {
 
 export interface BabyInfo {
   gender: string;
-  ethnicity: string;
-  culturalBackground: string;
+  origin: string;
+  style: string;
+  meaningPreference: string;
+  theme: string;
+  culturalSignificance: string;
   startingLetter: string;
   dueDate: string;
-  meaningPreference: string;
 }
 
 export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
   const [babyInfo, setBabyInfo] = useState<BabyInfo>({
     gender: "",
-    ethnicity: "",
-    culturalBackground: "",
+    origin: "",
+    style: "",
+    meaningPreference: "",
+    theme: "",
+    culturalSignificance: "",
     startingLetter: "",
     dueDate: "",
-    meaningPreference: "",
   });
 
   const handleChange = (field: keyof BabyInfo, value: string) => {
@@ -61,33 +65,84 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="ethnicity">Ethnicity</Label>
+          <Label htmlFor="origin">Origin</Label>
           <Select
-            value={babyInfo.ethnicity}
-            onValueChange={(value) => handleChange("ethnicity", value)}
+            value={babyInfo.origin}
+            onValueChange={(value) => handleChange("origin", value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select ethnicity" />
+              <SelectValue placeholder="Select name origin" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="african">African</SelectItem>
-              <SelectItem value="asian">Asian</SelectItem>
-              <SelectItem value="european">European</SelectItem>
-              <SelectItem value="hispanic">Hispanic</SelectItem>
-              <SelectItem value="middleEastern">Middle Eastern</SelectItem>
-              <SelectItem value="mixed">Mixed</SelectItem>
+              <SelectItem value="indian">Indian</SelectItem>
+              <SelectItem value="irish">Irish</SelectItem>
+              <SelectItem value="icelandic">Icelandic</SelectItem>
+              <SelectItem value="yiddish">Yiddish</SelectItem>
+              <SelectItem value="chinese">Chinese</SelectItem>
+              <SelectItem value="japanese">Japanese</SelectItem>
+              <SelectItem value="spanish">Spanish</SelectItem>
+              <SelectItem value="italian">Italian</SelectItem>
               <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="culturalBackground">Cultural Background</Label>
+          <Label htmlFor="style">Name Style</Label>
+          <Select
+            value={babyInfo.style}
+            onValueChange={(value) => handleChange("style", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select name style" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="classic">Classic</SelectItem>
+              <SelectItem value="unique">Unique & Uncommon</SelectItem>
+              <SelectItem value="edgy">Edgy</SelectItem>
+              <SelectItem value="vintage">Vintage</SelectItem>
+              <SelectItem value="modern">Modern</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="theme">Theme</Label>
+          <Select
+            value={babyInfo.theme}
+            onValueChange={(value) => handleChange("theme", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select name theme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="seasonal">Seasonal</SelectItem>
+              <SelectItem value="astrology">Astrology-Inspired</SelectItem>
+              <SelectItem value="color">Color-Inspired</SelectItem>
+              <SelectItem value="nature">Nature-Inspired</SelectItem>
+              <SelectItem value="fictional">Fictional</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="meaningPreference">Meaning Preferences</Label>
           <Input
-            id="culturalBackground"
-            placeholder="E.g., Irish-American, Chinese"
-            value={babyInfo.culturalBackground}
-            onChange={(e) => handleChange("culturalBackground", e.target.value)}
+            id="meaningPreference"
+            placeholder="E.g., Strength, Peace, Light, Wisdom"
+            value={babyInfo.meaningPreference}
+            onChange={(e) => handleChange("meaningPreference", e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="culturalSignificance">Cultural Significance</Label>
+          <Input
+            id="culturalSignificance"
+            placeholder="E.g., Family heritage, cultural traditions"
+            value={babyInfo.culturalSignificance}
+            onChange={(e) => handleChange("culturalSignificance", e.target.value)}
           />
         </div>
 
@@ -117,16 +172,6 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
             type="date"
             value={babyInfo.dueDate}
             onChange={(e) => handleChange("dueDate", e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="meaningPreference">Meaning Preferences</Label>
-          <Input
-            id="meaningPreference"
-            placeholder="E.g., Strength, Peace, Wisdom"
-            value={babyInfo.meaningPreference}
-            onChange={(e) => handleChange("meaningPreference", e.target.value)}
           />
         </div>
       </div>

@@ -1,31 +1,39 @@
 const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
 
 export async function generateNamesWithAI(preferences: any) {
-  const { gender, ethnicity, culturalBackground, startingLetter, dueDate, meaningPreference } = preferences;
+  const { gender, origin, style, meaningPreference, theme, culturalSignificance, startingLetter, dueDate } = preferences;
   
-  const prompt = `Generate ONE unique baby name that:
-  - Is appropriate for a ${gender}
-  - MUST start with the letter "${startingLetter || 'any letter'}"
-  - Reflects ${ethnicity} and ${culturalBackground} cultural background
-  - Has meaning related to ${meaningPreference || 'any positive meaning'}
+  const prompt = `Generate 6 unique baby names that:
+  - Are appropriate for a ${gender}
+  - MUST all start with the letter "${startingLetter || 'any letter'}"
+  - Have ${origin} cultural origins
+  - Follow a ${style} naming style
+  - Relate to the theme: ${theme}
+  - Have meanings related to: ${meaningPreference}
+  - Consider this cultural significance: ${culturalSignificance}
   
   Also include information about real famous people who were born on ${dueDate || 'any date'} and share this name or a similar name.
   
-  Return the response in this exact JSON format:
+  Return the response in this exact JSON format for EACH name (return exactly 6 names):
   {
-    "name": "Name",
-    "meaning": "Brief meaning (1-2 sentences)",
-    "explanation": "Detailed cultural and historical context (2-3 sentences)",
-    "famousPeople": [
+    "names": [
       {
-        "name": "Famous Person Name",
-        "profession": "Their profession",
-        "birthYear": year
+        "name": "Name",
+        "meaning": "Brief meaning (1-2 sentences)",
+        "explanation": "Detailed cultural and historical context (2-3 sentences)",
+        "famousPeople": [
+          {
+            "name": "Famous Person Name",
+            "profession": "Their profession",
+            "birthYear": year
+          }
+        ]
       }
     ]
   }
 
-  The name MUST be a real, culturally appropriate name (not made up). The explanation should be detailed but concise.`;
+  The names MUST be real, culturally appropriate names (not made up). The explanation should be detailed but concise.
+  All 6 names must be different from each other but start with the same letter.`;
 
   try {
     console.log("Sending request to OpenRouter with prompt:", prompt);
@@ -58,8 +66,8 @@ export async function generateNamesWithAI(preferences: any) {
 
     if (data.choices && data.choices[0]?.message?.content) {
       try {
-        const aiGeneratedName = JSON.parse(data.choices[0].message.content);
-        return aiGeneratedName;
+        const parsedContent = JSON.parse(data.choices[0].message.content);
+        return parsedContent.names;
       } catch (e) {
         console.error("Error parsing AI response:", e);
         return null;
