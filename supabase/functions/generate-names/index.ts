@@ -5,7 +5,6 @@ import { generateNamesWithPlugin } from './pluginGenerator.ts';
 import { generateNameWithAI } from './aiGenerator.ts';
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -14,7 +13,7 @@ serve(async (req) => {
     const { babyInfo } = await req.json();
     console.log("Received baby info:", babyInfo);
 
-    // Generate 5 names using the plugin (increased from 4)
+    // Generate 5 names using the plugin
     const pluginNames = generateNamesWithPlugin(babyInfo);
     console.log("Generated plugin names:", pluginNames);
 
@@ -25,22 +24,37 @@ serve(async (req) => {
     console.log("AI-generated name:", aiName);
     
     if (aiName) {
-      allNames.push(aiName);
+      // Ensure AI name starts with the correct letter if specified
+      if (!babyInfo.startingLetter || 
+          aiName.name.toLowerCase().startsWith(babyInfo.startingLetter.toLowerCase())) {
+        allNames.push(aiName);
+      } else {
+        // If AI name doesn't match the letter, add another plugin name
+        const extraPluginName = generateNamesWithPlugin(babyInfo)[0];
+        allNames.push(extraPluginName);
+      }
+    } else {
+      // If AI generation fails, add another plugin name
+      const extraPluginName = generateNamesWithPlugin(babyInfo)[0];
+      allNames.push(extraPluginName);
     }
 
-    // Ensure we have exactly 6 names
-    while (allNames.length < 6 && pluginNames.length > 0) {
-      // If we need more names, cycle through plugin names again
-      const additionalName = pluginNames[allNames.length % pluginNames.length];
-      allNames.push(additionalName);
-    }
+    // Ensure we have exactly 6 unique names
+    const uniqueNames = Array.from(new Set(allNames.map(n => n.name)))
+      .map(name => allNames.find(n => n.name === name))
+      .slice(0, 6);
 
-    // Limit to exactly 6 names
-    allNames = allNames.slice(0, 6);
+    // If we don't have enough unique names, add more from the plugin
+    while (uniqueNames.length < 6) {
+      const extraName = generateNamesWithPlugin(babyInfo)[0];
+      if (!uniqueNames.some(n => n.name === extraName.name)) {
+        uniqueNames.push(extraName);
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
-        names: allNames,
+        names: uniqueNames,
         model: aiName ? "Name Generation Plugin + Mistral-7B" : "Name Generation Plugin v1.0"
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

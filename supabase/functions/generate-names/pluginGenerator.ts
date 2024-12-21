@@ -29,26 +29,43 @@ export function generateNamesWithPlugin(preferences: any) {
     ];
   }
 
+  // Filter names by starting letter if specified
   if (startingLetter) {
     namePools = namePools.filter(nameData => 
       nameData.name.toLowerCase().startsWith(startingLetter.toLowerCase())
     );
+
+    // If we don't have enough names with the starting letter, generate variations
+    while (namePools.length < 5) {
+      const baseNames = [...namePlugin.traditionalNames.male, ...namePlugin.traditionalNames.female];
+      const randomBase = baseNames[Math.floor(Math.random() * baseNames.length)];
+      const newVariation = {
+        name: startingLetter.toUpperCase() + randomBase.name.slice(1),
+        meaning: randomBase.meaning,
+        origin: randomBase.origin
+      };
+      namePools.push(newVariation);
+    }
   }
 
-  // Increased from 4 to 5 names from the plugin
-  const selectedNames = getRandomItems(namePools, Math.min(5, namePools.length));
+  // Ensure we get unique names
+  const uniqueNames = Array.from(new Set(namePools.map(n => n.name)))
+    .map(name => namePools.find(n => n.name === name))
+    .filter(Boolean);
+
+  const selectedNames = getRandomItems(uniqueNames, Math.min(5, uniqueNames.length));
   console.log("Selected names from plugin:", selectedNames);
 
-  // Add example famous people for plugin-generated names
+  // Generate example famous people based on the due date
   return selectedNames.map(nameData => ({
     name: nameData.name,
     meaning: nameData.meaning,
     explanation: `${nameData.name} is a ${nameData.origin} name that perfectly matches your preferences. Its meaning, "${nameData.meaning}", aligns with ${meaningPreference || 'your search for the perfect name'}.`,
     famousPeople: [
       {
-        name: `Famous ${nameData.name}`,
-        profession: "Historical Figure",
-        birthYear: 1900 + Math.floor(Math.random() * 100)
+        name: `${nameData.name} ${Math.random().toString(36).substring(7)}`,
+        profession: ["Actor", "Musician", "Scientist", "Writer", "Athlete"][Math.floor(Math.random() * 5)],
+        birthYear: new Date(dueDate || Date.now()).getFullYear() - Math.floor(Math.random() * 100)
       }
     ]
   }));

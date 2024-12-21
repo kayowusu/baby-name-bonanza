@@ -5,11 +5,11 @@ export async function generateNameWithAI(preferences: any) {
   
   const prompt = `Generate a unique baby name that:
   - Is for a ${gender}
-  - Starts with the letter "${startingLetter || 'any letter'}"
+  - MUST start with the letter "${startingLetter || 'any letter'}"
   - Reflects ${ethnicity} and ${culturalBackground} cultural background
   - Has meaning related to ${meaningPreference || 'any positive meaning'}
   
-  Also include information about a famous person or historical event associated with this name, particularly those related to the date ${dueDate || 'any date'}.
+  Also include information about real famous people who were born on ${dueDate || 'any date'} and share this name or a similar name.
   
   Return the response in this exact JSON format:
   {
@@ -39,7 +39,7 @@ export async function generateNameWithAI(preferences: any) {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that specializes in generating meaningful baby names based on cultural preferences and meanings, including historical context and famous people associated with the names.'
+            content: 'You are a helpful assistant that specializes in generating meaningful baby names based on cultural preferences and meanings. You must ensure all names start with the specified letter and include real historical figures born on the specified date when possible.'
           },
           {
             role: 'user',
