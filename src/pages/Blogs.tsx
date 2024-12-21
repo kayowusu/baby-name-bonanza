@@ -12,6 +12,85 @@ const Blogs = () => {
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-4xl font-bold text-gray-800 mb-8 animate-fadeIn">Baby Name Blogs</h1>
       <div className="space-y-8 animate-fadeIn" style={{ animationDelay: "200ms" }}>
+        {/* New Blog Post */}
+        <article className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
+          <h2 className="text-2xl font-semibold mb-4">Exploring the Rise of Vintage Baby Names in 2024</h2>
+          
+          {expandedPost !== 'vintage-names-2024' ? (
+            <>
+              <p className="text-gray-600 mb-4">
+                In 2024, a notable trend among new parents is the resurgence of vintage baby names from the 1920s. These classic names are making a modern comeback, offering a blend of nostalgia and timeless charm.
+              </p>
+              <Button 
+                variant="ghost" 
+                onClick={() => togglePost('vintage-names-2024')}
+                className="text-purple-600 hover:text-purple-700 font-medium"
+              >
+                Read more →
+              </Button>
+            </>
+          ) : (
+            <div className="space-y-6">
+              <div className="prose prose-purple max-w-none">
+                <h3 className="text-xl font-semibold mt-6 mb-4">Why Vintage Names?</h3>
+                <p>Parents are increasingly seeking names that stand out yet have a sense of familiarity. Vintage names provide a unique identity while connecting to historical roots, making them appealing choices for today's newborns.</p>
+
+                <h3 className="text-xl font-semibold mt-6 mb-4">Popular Vintage Names for Girls</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li><strong>Dorothy</strong>: Meaning "gift of God," Dorothy was a top name in the 1920s and is regaining popularity.</li>
+                  <li><strong>Helen</strong>: Signifying "light" or "bright," Helen offers a classic elegance.</li>
+                  <li><strong>Margaret</strong>: With the meaning "pearl," Margaret provides a timeless option with various nickname possibilities like Maggie or Greta.</li>
+                  <li><strong>Ruth</strong>: Meaning "friend" or "companion," Ruth is a short, strong name with historical significance.</li>
+                </ul>
+
+                <h3 className="text-xl font-semibold mt-6 mb-4">Popular Vintage Names for Boys</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li><strong>Charles</strong>: Meaning "free man," Charles is a classic name with royal connotations.</li>
+                  <li><strong>George</strong>: Signifying "farmer," George has been a steady favorite over the decades.</li>
+                  <li><strong>Edward</strong>: Meaning "wealthy guardian," Edward offers a regal touch.</li>
+                  <li><strong>Henry</strong>: Signifying "ruler of the household," Henry combines strength with tradition.</li>
+                </ul>
+
+                <h3 className="text-xl font-semibold mt-6 mb-4">Incorporating Vintage Names Today</h3>
+                <p>These vintage names can be used as first names or paired as middle names to balance modernity and tradition. They also offer flexibility with nicknames, allowing for personalization.</p>
+
+                <div className="my-6 text-center">
+                  <img 
+                    src="https://tse3.mm.bing.net/th?id=OIP.5CCfMKRU0ZsnIU2Z2SmEiAHaHa&pid=Api" 
+                    alt="Baby names trends 2024"
+                    className="rounded-lg mx-auto max-w-full"
+                  />
+                </div>
+
+                <h3 className="text-xl font-semibold mt-6 mb-4">Conclusion</h3>
+                <p>The revival of 1920s baby names in 2024 reflects a desire to connect with the past while providing children with distinctive and meaningful names. This trend showcases the enduring appeal of classic names and their ability to adapt to contemporary times.</p>
+
+                <p className="mt-4">
+                  For more insights into vintage baby names making a comeback, visit{" "}
+                  <a 
+                    href="https://www.parents.com/vintage-baby-names-from-the-1920s-ready-to-make-a-modern-comeback-8764111" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-600 hover:text-purple-700 underline"
+                  >
+                    Parents.com
+                  </a>
+                  .
+                </p>
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                onClick={() => togglePost('vintage-names-2024')}
+                className="text-purple-600 hover:text-purple-700 font-medium mt-4"
+              >
+                Show less ↑
+              </Button>
+            </div>
+          )}
+        </article>
+
+        {/* Previous Blog Post */}
         <article className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
           <h2 className="text-2xl font-semibold mb-4">Trending Baby Names: A Look Back at 1880 and Modern Trends</h2>
           
