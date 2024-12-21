@@ -16,6 +16,7 @@ serve(async (req) => {
 
   try {
     const { babyInfo } = await req.json()
+    console.log("Received baby info:", babyInfo)
 
     const prompt = `Generate 5 unique baby names based on these preferences:
     - Gender: ${babyInfo.gender}
@@ -31,6 +32,8 @@ serve(async (req) => {
     3. A brief explanation of why it suits this baby's profile
     
     Format each response as: Name: [name] | Meaning: [meaning] | Explanation: [explanation]`
+
+    console.log("Sending prompt to OpenRouter:", prompt)
 
     const response = await fetch(OPENROUTER_URL, {
       method: 'POST',
@@ -59,10 +62,13 @@ serve(async (req) => {
     console.log("OpenRouter API Response:", data)
     
     if (!data.choices || !data.choices[0]?.message?.content) {
+      console.error("Invalid API response structure:", data)
       throw new Error("Invalid response format from API")
     }
 
     const content = data.choices[0].message.content
+    console.log("Raw content from API:", content)
+
     const nameList = content.split("\n")
       .filter((line: string) => line.trim().length > 0 && line.includes("|"))
       .map((line: string) => {
@@ -74,6 +80,8 @@ serve(async (req) => {
         }
       })
 
+    console.log("Processed name list:", nameList)
+
     return new Response(
       JSON.stringify({ names: nameList }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
@@ -82,7 +90,7 @@ serve(async (req) => {
     console.error("Error in generate-names function:", error)
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
+      {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },

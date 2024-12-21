@@ -29,9 +29,12 @@ export const NameGenerator = () => {
 
     setIsLoading(true);
     try {
+      console.log("Sending request with baby info:", babyInfo);
       const { data, error } = await supabase.functions.invoke('generate-names', {
         body: { babyInfo },
       });
+
+      console.log("Response from Edge Function:", { data, error });
 
       if (error) throw error;
 
@@ -57,6 +60,7 @@ export const NameGenerator = () => {
   };
 
   const handleInfoSubmit = (info: BabyInfo) => {
+    console.log("Form submitted with info:", info);
     setBabyInfo(info);
   };
 
