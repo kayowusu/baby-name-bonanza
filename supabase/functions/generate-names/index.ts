@@ -13,29 +13,28 @@ serve(async (req) => {
     const { babyInfo } = await req.json();
     console.log("Received baby info:", babyInfo);
 
-    // Generate all 6 names using AI
-    const names = [];
-    for (let i = 0; i < 6; i++) {
-      const aiName = await generateNamesWithAI(babyInfo);
-      if (aiName && (!babyInfo.startingLetter || 
-          aiName.name.toLowerCase().startsWith(babyInfo.startingLetter.toLowerCase()))) {
-        names.push(aiName);
-      }
+    if (!babyInfo) {
+      throw new Error("Baby info is required");
     }
 
-    // Ensure we have exactly 6 unique names
-    const uniqueNames = Array.from(new Set(names.map(n => n.name)))
-      .map(name => names.find(n => n.name === name))
+    // Generate names using AI
+    const names = await generateNamesWithAI(babyInfo);
+    console.log("Generated names:", names);
+
+    if (!names || !Array.isArray(names)) {
+      throw new Error("Failed to generate names");
+    }
+
+    // Filter and ensure uniqueness
+    const uniqueNames = Array.from(new Set(names))
+      .filter(name => {
+        if (!babyInfo.startingLetter) return true;
+        return name.name.toLowerCase().startsWith(babyInfo.startingLetter.toLowerCase());
+      })
       .slice(0, 6);
 
-    // If we don't have enough unique names, generate more
-    while (uniqueNames.length < 6) {
-      const extraName = await generateNamesWithAI(babyInfo);
-      if (extraName && !uniqueNames.some(n => n.name === extraName.name) &&
-          (!babyInfo.startingLetter || 
-           extraName.name.toLowerCase().startsWith(babyInfo.startingLetter.toLowerCase()))) {
-        uniqueNames.push(extraName);
-      }
+    if (uniqueNames.length === 0) {
+      throw new Error("No valid names were generated");
     }
 
     return new Response(
