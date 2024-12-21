@@ -56,6 +56,7 @@ serve(async (req) => {
     })
 
     const data = await response.json()
+    console.log("OpenRouter API Response:", data)
     
     if (!data.choices || !data.choices[0]?.message?.content) {
       throw new Error("Invalid response format from API")
@@ -78,6 +79,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (error) {
+    console.error("Error in generate-names function:", error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
