@@ -1,7 +1,7 @@
 const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
 
 export async function generateNameWithAI(preferences: any) {
-  const { gender, ethnicity, culturalBackground, startingLetter, meaningPreference } = preferences;
+  const { gender, ethnicity, culturalBackground, startingLetter, dueDate, meaningPreference } = preferences;
   
   const prompt = `Generate a unique baby name that:
   - Is for a ${gender}
@@ -9,11 +9,20 @@ export async function generateNameWithAI(preferences: any) {
   - Reflects ${ethnicity} and ${culturalBackground} cultural background
   - Has meaning related to ${meaningPreference || 'any positive meaning'}
   
+  Also include information about a famous person or historical event associated with this name, particularly those related to the date ${dueDate || 'any date'}.
+  
   Return the response in this exact JSON format:
   {
     "name": "Name",
     "meaning": "Brief meaning",
-    "explanation": "Detailed cultural and historical context"
+    "explanation": "Detailed cultural and historical context",
+    "famousPeople": [
+      {
+        "name": "Famous Person Name",
+        "profession": "Their profession",
+        "birthYear": year
+      }
+    ]
   }`;
 
   try {
@@ -30,7 +39,7 @@ export async function generateNameWithAI(preferences: any) {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that specializes in generating meaningful baby names based on cultural preferences and meanings.'
+            content: 'You are a helpful assistant that specializes in generating meaningful baby names based on cultural preferences and meanings, including historical context and famous people associated with the names.'
           },
           {
             role: 'user',

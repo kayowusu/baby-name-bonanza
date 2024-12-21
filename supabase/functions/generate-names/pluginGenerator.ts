@@ -3,7 +3,7 @@ import { getRandomItems } from './utils.ts';
 
 export function generateNamesWithPlugin(preferences: any) {
   console.log("Generating names with preferences:", preferences);
-  const { gender, meaningPreference, startingLetter } = preferences;
+  const { gender, meaningPreference, startingLetter, dueDate } = preferences;
 
   let namePools = [];
   
@@ -39,9 +39,17 @@ export function generateNamesWithPlugin(preferences: any) {
   const selectedNames = getRandomItems(namePools, Math.min(5, namePools.length));
   console.log("Selected names from plugin:", selectedNames);
 
+  // Add example famous people for plugin-generated names
   return selectedNames.map(nameData => ({
     name: nameData.name,
     meaning: nameData.meaning,
-    explanation: `${nameData.name} is a ${nameData.origin} name that perfectly matches your preferences. Its meaning, "${nameData.meaning}", aligns with ${meaningPreference || 'your search for the perfect name'}.`
+    explanation: `${nameData.name} is a ${nameData.origin} name that perfectly matches your preferences. Its meaning, "${nameData.meaning}", aligns with ${meaningPreference || 'your search for the perfect name'}.`,
+    famousPeople: [
+      {
+        name: `Famous ${nameData.name}`,
+        profession: "Historical Figure",
+        birthYear: 1900 + Math.floor(Math.random() * 100)
+      }
+    ]
   }));
 }

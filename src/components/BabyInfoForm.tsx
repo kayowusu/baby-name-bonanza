@@ -13,7 +13,7 @@ export interface BabyInfo {
   ethnicity: string;
   culturalBackground: string;
   startingLetter: string;
-  familyNameTradition: string;
+  dueDate: string;
   meaningPreference: string;
 }
 
@@ -23,7 +23,7 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
     ethnicity: "",
     culturalBackground: "",
     startingLetter: "",
-    familyNameTradition: "",
+    dueDate: "",
     meaningPreference: "",
   });
 
@@ -111,12 +111,12 @@ export const BabyInfoForm = ({ onInfoSubmit }: BabyInfoFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="familyNameTradition">Family Naming Traditions</Label>
+          <Label htmlFor="dueDate">Due Date</Label>
           <Input
-            id="familyNameTradition"
-            placeholder="E.g., Named after grandparents, Nature-inspired names"
-            value={babyInfo.familyNameTradition}
-            onChange={(e) => handleChange("familyNameTradition", e.target.value)}
+            id="dueDate"
+            type="date"
+            value={babyInfo.dueDate}
+            onChange={(e) => handleChange("dueDate", e.target.value)}
           />
         </div>
 
