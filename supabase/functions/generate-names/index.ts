@@ -9,6 +9,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const models = [
+  'openai/gpt-4o-mini',
+  'google/gemini-2.0-flash-thinking-exp:free',
+  'perplexity/llama-3.1-sonar-small-128k-online'
+]
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -33,41 +39,45 @@ serve(async (req) => {
     
     Format each response as: Name: [name] | Meaning: [meaning] | Explanation: [explanation]`
 
-    console.log("Sending prompt to OpenRouter:", prompt)
+    console.log("Sending prompt to multiple models:", prompt)
 
-    const response = await fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://localhost:5173',
-        'X-Title': 'Baby Name Generator',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-thinking-exp:free",
-        messages: [
-          {
-            role: "system",
-            content: "You are a helpful assistant that generates thoughtful baby names. Return the names in the specified format, one per line.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      }),
-    })
+    // Create an array of promises for each model
+    const modelPromises = models.map(model => 
+      fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'HTTP-Referer': 'https://localhost:5173',
+          'X-Title': 'Baby Name Generator',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: "system",
+              content: "You are a helpful assistant that generates thoughtful baby names. Return the names in the specified format, one per line.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        }),
+      }).then(res => res.json())
+    )
 
-    const data = await response.json()
-    console.log("OpenRouter API Response:", data)
-    
-    if (!data.choices || !data.choices[0]?.message?.content) {
-      console.error("Invalid API response structure:", data)
+    // Use Promise.race to get the first response
+    const firstResponse = await Promise.race(modelPromises)
+    console.log("First response received:", firstResponse)
+
+    if (!firstResponse.choices || !firstResponse.choices[0]?.message?.content) {
+      console.error("Invalid API response structure:", firstResponse)
       throw new Error("Invalid response format from API")
     }
 
-    const content = data.choices[0].message.content
-    console.log("Raw content from API:", content)
+    const content = firstResponse.choices[0].message.content
+    console.log("Raw content from first response:", content)
 
     const nameList = content.split("\n")
       .filter((line: string) => line.trim().length > 0 && line.includes("|"))
